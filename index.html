@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>nextphase partners | NPP Overview</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+        :root {
+            --bg: #050505;
+            --surface: #2a2a2a;
+            --accent: #d64545;
+            --text-main: #ffffff;
+            --text-dim: #b0b0b0;
+            --font-stack: 'Inter', 'Segoe UI', sans-serif;
+        }
+
+        * { box-sizing: border-box; }
+        
+        body, html { 
+            margin: 0; padding: 0; background: var(--bg); 
+            color: var(--text-main); font-family: var(--font-stack);
+            width: 100%; height: 100%; overflow: hidden;
+            position: fixed; 
+        }
+
+        #presentation-wrapper { 
+            width: 100vw; height: 100vh; 
+            position: relative; display: flex;
+            justify-content: center; align-items: center;
+        }
+
+        .slide {
+            position: absolute; inset: 0; 
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center; 
+            padding: 40px; opacity: 0; 
+            transition: opacity 0.6s ease-in-out; 
+            pointer-events: none; width: 100%; height: 100%;
+        }
+
+        .slide.active { opacity: 1; pointer-events: auto; }
+        .container { max-width: 1200px; width: 100%; margin: 0 auto; }
+
+        /* Typography */
+        h1.logo { font-size: clamp(2.5rem, 8vw, 5.5rem); line-height: 0.85; margin: 0; font-weight: 700; }
+        h1 span.grey { color: #555; }
+        h2 { font-size: clamp(1.8rem, 4vw, 3.2rem); margin-bottom: 20px; font-weight: 600; }
+        .accent-bar { width: 80px; height: 6px; background: var(--accent); margin: 20px 0; }
+
+        /* Layout Grids */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .grid-auto { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        
+        .card { background: var(--surface); padding: 30px; border-radius: 16px; height: 100%; }
+        .card h3 { color: var(--accent); margin-top: 0; font-size: 1.3rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+
+        .stat-huge { font-size: clamp(3rem, 7vw, 6rem); font-weight: 800; color: var(--accent); line-height: 1; margin: 0; }
+        .v-center { display: flex; flex-direction: column; justify-content: center; }
+        
+        .stack-container { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 850px; margin: 0 auto; }
+        .stack-item { background: var(--surface); padding: 15px 25px; border-radius: 12px; border-left: 5px solid var(--accent); }
+        .stack-item h3 { font-size: 1.1rem; margin-bottom: 5px; color: var(--accent); text-transform: uppercase; }
+        .stack-item p { margin: 0; font-size: 1rem; color: var(--text-dim); }
+
+        /* Mobile Responsive Adjustments */
+        @media (max-width: 768px) {
+            .slide { padding: 20px; overflow-y: auto; display: block; padding-top: 60px; }
+            .grid-2, .grid-3, .grid-auto { grid-template-columns: 1fr; }
+            .card { padding: 20px; margin-bottom: 15px; }
+            h2 { text-align: center; }
+            .accent-bar { margin: 15px auto; }
+            .controls-overlay { transform: translateX(-50%) scale(0.8); bottom: 10px; width: 90%; justify-content: center; }
+        }
+
+        /* Controls */
+        .controls-overlay {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; display: flex; align-items: center; gap: 15px;
+            background: rgba(42, 42, 42, 0.9); padding: 10px 20px; border-radius: 50px;
+            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
+        }
+        .hidden { display: none; }
+        .control-btn { background: none; border: none; color: white; cursor: pointer; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; }
+        #progress-container { width: 120px; height: 4px; background: #444; border-radius: 2px; overflow: hidden; }
+        #progress-bar { width: 0%; height: 100%; background: var(--accent); transition: width 0.1s linear; }
+
+        .start-screen { position: fixed; inset: 0; z-index: 2000; background: var(--bg); display: flex; justify-content: center; align-items: center; }
+        .primary-btn { background: var(--accent); color: white; border: none; padding: 20px 40px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1.2rem; }
+
+        ul { padding-left: 20px; color: var(--text-dim); }
+        li { margin-bottom: 8px; font-size: 1.1rem; }
+        .small-li li { font-size: 0.95rem; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+<div id="start-overlay" class="start-screen">
+    <button class="primary-btn" onclick="initPresentation()">Begin Presentation</button>
+</div>
+
+<div id="transport" class="controls-overlay hidden">
+    <button id="play-pause-btn" class="control-btn" onclick="togglePause()">Pause</button>
+    <div id="progress-container"><div id="progress-bar"></div></div>
+    <button id="replay-btn" class="control-btn hidden" onclick="replay()">Replay</button>
+</div>
+
+<div id="presentation-wrapper">
+    <div class="slide active">
+        <div class="container">
+            <h1 class="logo">ne<span class="grey">xtp</span>hase</h1>
+            <h1 class="logo">partners</h1>
+            <p style="font-size: 1.8rem; color: var(--text-dim); margin-top: 20px;">Your European market entry partner</p>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="container" style="text-align: center;">
+            <div style="border: 2px solid var(--surface); border-radius: 60px; padding: 40px; display: inline-block;">
+                <p style="font-size: clamp(1.4rem, 3vw, 2.4rem); margin: 0; max-width: 900px; line-height: 1.4;">
+                    We guide technology-focused businesses through their <strong>next phase of growth</strong> by establishing a strong presence in Europe.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="container">
+            <h2>Market Opportunity</h2>
+            <div class="accent-bar"></div>
+            <div class="grid-2">
+                <div class="card"><p class="stat-huge">€16+ trillion</p><p style="font-size: 1.4rem;">GDP across 27 EU countries</p></div>
+                <div class="card"><p class="stat-huge">450+ million</p><p style="font-size: 1.4rem;">Consumers</p></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="container">
+            <h2>Tech Spending Growth</h2>
+            <div class="grid-2">
+                <div class="card v-center"><h3>25% Annual Growth</h3><p style="font-size: 1.2rem;">B2B technology spending increase in Europe</p></div>
+                <div class="card v-center">
+                    <ul class="small-li">
+                        <li>12% CAGR in European enterprise software market</li>
+                        <li>€280 billion technology services market</li>
+                        <li>Strong demand for international technology solutions</li>
+                        <li>Government incentives supporting digital innovation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="container">
+            <h2 style="color: var(--accent)">The Challenge</h2>
+            <div class="grid-2">
+                <div class="card v-center" style="text-align: center;">
+                    <p class="stat-huge">60%</p>
+                    <p style="font-size: 1.6rem; font-weight: 600; margin-top: 10px;">Failure Rate</p>
+                </div>
+                <div class="card v-center">
+                    <ul class="small-li">
+                        <li>Cultural nuances and local market knowledge</li>
+                        <li>High cost of building local teams from scratch</li>
+                        <li>Lack of established local relationships</li>
+                        <li>Significantly longer sales cycles without local presence</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="container">
+            <h2>Our Solution</h2>
+            <div class="grid-auto">
+                <div class="card"><h3>1. Market Intelligence</h3><p>Local insights and validation.</p></div>
+                <div class="card"><h3>2. Revenue Generation</h3><p>GTM strategy and direct sales.</p></div>
+                <div class="card"><h3>3. Strategic Partnerships</h3><p>Channel and alliance building.</p></div>
+                <div class="card"><h3>4. Operational Foundation</h3><p>Compliance and legal support.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="container">
+            <h2>Our Services</h2>
+            <div class="grid-auto small-li">
+                <div class="card"><h3>Market Dev</h3><ul><li>Meeting representation</li><li>Event participation</li><li>Market validation</li></ul></div>
+                <div class="card"><h3>Sales Strategy</h3><ul><li>Messaging localization</li><li>Lead generation</li><li>Team building</li></ul></div>
+                <div class="card"><h3>Partnerships</h3><ul><li>Partner qualification</li><li>Relationship dev</li><li>Channel enablement</li></ul></div>
+                <div class="card"><h3>Operations</h3><ul><li>Compliance guidance</li><li>Financial setup</li><li>Talent acquisition</li></ul></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="container">
+            <h2 style="text-align: center;">Why nextphase partners?</h2>
+            <div class="stack-container">
+                <div class="stack-item"><h3>Speed to Market</h3><p>Launch in weeks. Skip the long recruitment cycles.</p></div>
+                <div class="stack-item"><h3>Reduced Risk</h3><p>Validated market entry with local experts.</p></div>
+                <div class="stack-item"><h3>Domain Expertise</h3><p>Deep knowledge of B2B SaaS and hardware, and agile with emerging technologies.</p></div>
+                <div class="stack-item"><h3>Strategic Network</h3><p>Immediate access to key decision-makers.</p></div>
+                <div class="stack-item"><h3>Cost Efficiency</h3><p>Fraction of the cost of a full local executive team.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="container">
+            <h2>Our Approach</h2>
+            <div class="accent-bar"></div>
+            <div class="grid-3">
+                <div class="card"><h3>Phase 1: Setup</h3><ul class="small-li"><li>Intelligence</li><li>GTM Strategy</li><li>Legal Foundation</li></ul></div>
+                <div class="card"><h3>Phase 2: Growth</h3><ul class="small-li"><li>Sales Execution</li><li>Channel Building</li><li>Direct Revenue</li></ul></div>
+                <div class="card"><h3>Phase 3: Scale</h3><ul class="small-li"><li>Team Recruitment</li><li>Knowledge Transfer</li><li>Handover</li></ul></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="container">
+            <h2 style="font-size: 1.8rem;">Success Story: U.S. Expansion</h2>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Client & Objectives</h3>
+                    <p style="font-size: 0.9rem;">Asian tech conglomerate, No. 2 brand in East Asia.</p>
+                    <p style="margin-top: 20px; font-size: 0.9rem;"><strong>Goals:</strong> US entry, build local team, SI partnerships, first sales.</p>
+                </div>
+                <div class="card">
+                    <h3>Approach</h3>
+                    <ul class="small-li" style="font-size: 0.85rem;">
+                        <li><strong>Strategy:</strong> Research & GTM planning.</li>
+                        <li><strong>Team:</strong> Recruited U.S. sales & engineering.</li>
+                        <li><strong>Network:</strong> Onboarded resellers.</li>
+                    </ul>
+                </div>
+                <div class="card" style="grid-column: span 1; border-left: 5px solid var(--accent);">
+                    <h3>Results</h3>
+                    <ul class="small-li" style="font-size: 0.85rem;">
+                        <li>First U.S. sales secured</li>
+                        <li>Local team established</li>
+                        <li>Foundation for long-term growth</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="container" style="text-align: center;">
+            <h1 class="logo">ne<span class="grey">xtp</span>hase</h1>
+            <div class="accent-bar" style="margin: 20px auto;"></div>
+            <h2>Let’s Expand Together</h2>
+            <p style="font-size: 1.6rem; color: var(--accent); margin: 10px 0;">info@phasenext.eu</p>
+            <p style="font-size: 1.2rem;">www.phasenext.eu</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentSlide = 0;
+    let isPaused = false;
+    let startTime, remainingTime, timerId;
+    const slides = document.querySelectorAll('.slide');
+    const timings = [4000, 5000, 5000, 6000, 6000, 6000, 6000, 7500, 6000, 10000, 6000];
+    
+    const transport = document.getElementById('transport');
+    const playPauseBtn = document.getElementById('play-pause-btn');
+    const replayBtn = document.getElementById('replay-btn');
+    const progressBar = document.getElementById('progress-bar');
+
+    function initPresentation() {
+        document.getElementById('start-overlay').style.display = 'none';
+        showSlide();
+    }
+
+    function showSlide() {
+        if (currentSlide === 0) transport.classList.add('hidden');
+        else transport.classList.remove('hidden');
+        if (currentSlide === slides.length - 1) replayBtn.classList.remove('hidden');
+        else replayBtn.classList.add('hidden');
+
+        slides.forEach(s => s.classList.remove('active'));
+        slides[currentSlide].classList.add('active');
+        startTimer(timings[currentSlide]);
+    }
+
+    function startTimer(duration) {
+        startTime = Date.now();
+        remainingTime = duration;
+        animateProgress(duration);
+        timerId = setTimeout(() => {
+            if (currentSlide < slides.length - 1) { currentSlide++; showSlide(); }
+            else { isPaused = true; playPauseBtn.innerText = "Replay"; }
+        }, duration);
+    }
+
+    function animateProgress(duration) {
+        progressBar.style.transition = 'none';
+        progressBar.style.width = '0%';
+        setTimeout(() => {
+            progressBar.style.transition = `width ${duration}ms linear`;
+            progressBar.style.width = '100%';
+        }, 10);
+    }
+
+    function togglePause() {
+        if (isPaused) {
+            if (currentSlide === slides.length - 1 && remainingTime <= 0) replay();
+            else resume();
+        } else pause();
+    }
+
+    function pause() {
+        isPaused = true;
+        clearTimeout(timerId);
+        remainingTime -= (Date.now() - startTime);
+        const width = window.getComputedStyle(progressBar).width;
+        progressBar.style.transition = 'none';
+        progressBar.style.width = width;
+        playPauseBtn.innerText = "Play";
+    }
+
+    function resume() {
+        isPaused = false;
+        startTime = Date.now();
+        animateProgress(remainingTime);
+        timerId = setTimeout(() => {
+            if (currentSlide < slides.length - 1) { currentSlide++; showSlide(); }
+        }, remainingTime);
+        playPauseBtn.innerText = "Pause";
+    }
+
+    function replay() {
+        clearTimeout(timerId);
+        currentSlide = 0;
+        isPaused = false;
+        playPauseBtn.innerText = "Pause";
+        showSlide();
+    }
+</script>
+</body>
+</html>
